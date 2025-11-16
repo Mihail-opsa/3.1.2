@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <title>Admin Panel</title>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .logout-btn { background: #dc3545; color: white; padding: 10px 20px; border: none; cursor: pointer; }
+        .section { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .edit-btn { background: #ffc107; color: black; padding: 5px 10px; text-decoration: none; border-radius: 3px; margin-right: 5px; }
+        .delete-btn { background: #dc3545; color: white; padding: 5px 10px; border: none; cursor: pointer; border-radius: 3px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input { padding: 8px; width: 300px; border: 1px solid #ddd; border-radius: 3px; }
+        .checkbox-group { margin: 5px 0; }
+        .btn-primary { background: #007bff; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 3px; }
+        .btn-success { background: #28a745; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 3px; }
+    </style>
+</head>
+<body>
+<h1>Admin Panel</h1>
+
+<!-- Информация о текущем пользователе -->
+<div sec:authorize="isAuthenticated()">
+    <h2>Welcome, Administrator <span sec:authentication="name">admin</span>!</h2>
+    <p>Roles: <span sec:authentication="principal.authorities">ROLE_ADMIN, ROLE_USER</span></p>
+</div>
+
+<!-- Список всех пользователей -->
+<div class="section">
+    <h2>All Users</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Name</th>
+            <th>Last Name</th>
+            <th>Age</th>
+            <th>Roles</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${users}">
+            <td th:text="${user.id}">1</td>
+            <td th:text="${user.username}">username</td>
+            <td th:text="${user.name}">Name</td>
+            <td th:text="${user.lastName}">Last Name</td>
+            <td th:text="${user.age}">Age</td>
+            <td>
+                <span th:each="role, stat : ${user.roles}"
+                      th:text="${role.name} + (${stat.last} ? '' : ', ')">
+                    ROLE_USER
+                </span>
+            </td>
+            <td>
+                <!-- Кнопка редактирования -->
+                <a th:href="@{/admin/edit/{id}(id=${user.id})}"
+                   class="edit-btn">Edit</a>
+
+                <!-- Форма для удаления -->
+                <form th:action="@{/admin/delete/} + ${user.id}" method="post" style="display: inline;">
+                    <button type="submit" class="delete-btn" onclick="return confirm('Delete user?')">Delete</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Форма для редактирования пользователя -->
+<div class="section" th:if="${user != null}">
+    <h2>Edit User</h2>
+    <form th:action="@{/admin/update/{id}(id=${user.id})}" method="post">
+        <div class="form-group">
+            <label>Username:</label>
+            <input type="text" name="username" th:value="${user.username}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Password (leave empty to keep current):</label>
+            <input type="password" name="password" placeholder="New password">
+        </div>
+
+        <div class="form-group">
+            <label>Name:</label>
+            <input type="text" name="name" th:value="${user.name}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Last Name:</label>
+            <input type="text" name="lastName" th:value="${user.lastName}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Age:</label>
+            <input type="number" name="age" th:value="${user.age}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Roles:</label><br>
+            <div th:each="role : ${roles}" class="checkbox-group">
+                <input type="checkbox"
+                       name="roles"
+                       th:value="${role.id}"
+                       th:id="${'edit_role_' + role.id}"
+                       th:checked="${#lists.contains(user.roles, role)}">
+                <label th:for="${'edit_role_' + role.id}" th:text="${role.name}">ROLE_USER</label>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-success">Update User</button>
+        <a th:href="@{/admin}" style="margin-left: 10px;">Cancel</a>
+    </form>
+</div>
+
+<!-- Форма для создания нового пользователя -->
+<div class="section">
+    <h2>Create New User</h2>
+    <form th:action="@{/admin/create}" method="post">
+        <div class="form-group">
+            <label>Username:</label>
+            <input type="text" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label>Password:</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <div class="form-group">
+            <label>Name:</label>
+            <input type="text" name="name" required>
+        </div>
+
+        <div class="form-group">
+            <label>Last Name:</label>
+            <input type="text" name="lastName" required>
+        </div>
+
+        <div class="form-group">
+            <label>Age:</label>
+            <input type="number" name="age" required>
+        </div>
+
+        <div class="form-group">
+            <label>Roles:</label><br>
+            <div th:each="role : ${roles}" class="checkbox-group">
+                <input type="checkbox" name="roles" th:value="${role.id}" th:id="${'role_' + role.id}">
+                <label th:for="${'role_' + role.id}" th:text="${role.name}">ROLE_USER</label>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-primary">Create User</button>
+    </form>
+</div>
+
+<!-- Форма выхода -->
+<div class="section">
+    <form th:action="@{/logout}" method="post">
+        <button type="submit" class="logout-btn">Logout</button>
+    </form>
+</div>
+
+</body>
+</html>
