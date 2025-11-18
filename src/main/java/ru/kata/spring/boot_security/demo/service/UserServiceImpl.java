@@ -4,7 +4,7 @@ package ru.kata.spring.boot_security.demo.service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.kata.spring.boot_security.demo.dao.RoleDao;
+
 import ru.kata.spring.boot_security.demo.dao.UserDao;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
@@ -18,13 +18,13 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserDao userDao;
-    private final RoleDao roleDao;
+    private final RoleService roleService;//          правка важно то есть юзер сервис работает со своим слоем дао ! но и может работать с сервис кар например но не кар дао
     private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserDao userDao, RoleDao roleDao, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserDao userDao, PasswordEncoder passwordEncoder, RoleService roleService) {
         this.userDao = userDao;
-        this.roleDao = roleDao;
         this.passwordEncoder = passwordEncoder;
+        this.roleService = roleService;// !!!!!!!!!!!!
     }
 
 
@@ -55,16 +55,6 @@ public class UserServiceImpl implements UserService {
         user.setRoles(roles);
         userDao.update(user);
     }
-
-//    @Transactional
-//    @Override
-//    public void createUserWithDefaultRole(User user) {
-//        Role userRole = roleDao.findByName("ROLE_USER")
-//                .orElseThrow(() -> new RuntimeException("Default role not found"));
-//        user.setPassword(passwordEncoder.encode(user.getPassword()));
-//        user.setRoles(Set.of(userRole));
-//        userDao.save(user);
-//    }
 
 
     @Transactional
@@ -101,7 +91,7 @@ public class UserServiceImpl implements UserService {
 
     private Set<Role> convertRoleIdsToRoles(Set<Long> roleIds) {
         return roleIds.stream()
-                .map(roleId -> roleDao.findById(roleId)
+                .map(roleId -> roleService.findById(roleId)
                         .orElseThrow(() -> new RuntimeException("Role not found: " + roleId)))
                 .collect(Collectors.toSet());
     }
@@ -111,12 +101,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getCurrentUser(Principal principal) {
         if (principal == null) {
-            throw new RuntimeException("User not authenticated");
+            return null;
         }
 
         String username = principal.getName();
         return userDao.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+                .orElse(null);
     }
 
 

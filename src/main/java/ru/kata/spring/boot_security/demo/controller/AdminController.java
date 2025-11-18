@@ -5,7 +5,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -47,14 +46,14 @@ public class AdminController {
         return "redirect:/admin";
     }
 
-    @PostMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
+    @PostMapping("/delete")
+    public String delete( @RequestParam Long id) {
         userService.deleteById(id);
         return "redirect:/admin";
     }
 
-    @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Long id, Model model) {
+    @GetMapping("/edit")
+    public String showEditForm( @RequestParam Long id, Model model) {
         User user = userService.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found: " + id));
         model.addAttribute("user", user);
@@ -64,8 +63,8 @@ public class AdminController {
         return "admin";
     }
 
-    @PostMapping("/update/{id}")
-    public String updateUser(@PathVariable Long id,
+    @PostMapping("/update")
+    public String updateUser( @RequestParam Long id,
                              @ModelAttribute User user,
                              @RequestParam("roles") Set<Long> roleIds) {
         userService.updateUserWithRoles(id, user, roleIds);

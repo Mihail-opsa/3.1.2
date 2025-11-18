@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface RoleService {
     List<Role> getAllRoles();
-    Role getRoleByName(String name);
+
     void save(Role role);
 
     Object findAll();

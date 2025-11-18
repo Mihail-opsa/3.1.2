@@ -25,12 +25,7 @@ public class RoleServiceImpl implements RoleService {
         return roleDao.findAll();
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public Role getRoleByName(String name) {
-        return roleDao.findByName(name)
-                .orElseThrow(() -> new RuntimeException("Role not found: " + name));
-    }
+
 
     @Transactional
     @Override
