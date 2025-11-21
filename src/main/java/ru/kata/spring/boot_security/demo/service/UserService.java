@@ -10,6 +10,7 @@ import java.util.Set;
 
 public interface UserService {
 
+
     // Бизнес-методы для контроллера
     void registerUserWithRoles(User user, Set<Long> roleIds);
     void updateUserWithRoles(Long id, User user, Set<Long> roleIds);

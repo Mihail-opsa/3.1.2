@@ -11,3 +11,4 @@ public interface RoleDao {
     void save(Role role);
     Optional<Role> findById(Long id);
 }
+

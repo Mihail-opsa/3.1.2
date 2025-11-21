@@ -23,6 +23,7 @@ public class DataInitializer {
 
     }
 
+
     @PostConstruct
     public void init() {
         // Создаем роли если их нет

@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Objects;
 
+
 @Entity
 @Table(name = "roles")
 public class Role implements GrantedAuthority {

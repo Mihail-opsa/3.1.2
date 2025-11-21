@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+
 public class UserServiceImpl implements UserService {
     private final UserDao userDao;
     private final RoleService roleService;//          правка важно то есть юзер сервис работает со своим слоем дао ! но и может работать с сервис кар например но не кар дао
